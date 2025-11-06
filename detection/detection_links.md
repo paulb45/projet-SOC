@@ -1,4 +1,7 @@
-# Documenatation interne pour implémentation des règles de détection
+# Documentation interne pour implémentation des règles de détection
+
+> [!WARNING]  
+> IMPORTANT: Il faut remplacer tous les index="test" dans nos règles de détection par index="prod" !!
 
 ## How to create an alert in Splunk
 
@@ -22,7 +25,7 @@ Les champs suivants sont présents dans le workflow, et doivent donc être prés
  - results_link
  - alert_severity_id
  - alert_source_event_time
- - alert_source_content
+ - alert_source_event_time
 
 
 ## Useful Links

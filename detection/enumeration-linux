@@ -5,7 +5,7 @@ index="test" sourcetype="kunai_json"
 | eval suspicious_command=case(
     match(cmd, "whoami"), "whoami",
     match(cmd, "\bid\b"), "id",
-    match(cmd, "\buname\b"), "uname",
+    match(cmd, "uname -a"), "uname",
     match(cmd, "hostname"), "hostname",
     match(cmd, "dmesg"), "dmesg",
     match(cmd, "uptime"), "uptime",
@@ -47,4 +47,4 @@ index="test" sourcetype="kunai_json"
 | search suspicious_command!=""
 | bin _time span=1m
 | stats dc(suspicious_command) as uniq values(suspicious_command) as commandes by host, _time
-| where uniq >= 3
+| where uniq >= 5

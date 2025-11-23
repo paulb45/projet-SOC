@@ -1,0 +1,50 @@
+index="test" sourcetype="kunai_json"
+| spath
+| spath path=data.command_line output=cmd
+| search cmd!=""
+| eval suspicious_command=case(
+    match(cmd, "whoami"), "whoami",
+    match(cmd, "\bid\b"), "id",
+    match(cmd, "\buname\b"), "uname",
+    match(cmd, "hostname"), "hostname",
+    match(cmd, "dmesg"), "dmesg",
+    match(cmd, "uptime"), "uptime",
+    match(cmd, "\benv\b"), "env",
+
+    match(cmd, "ifconfig"), "ifconfig",
+    match(cmd, "ip addr"), "ip addr",
+    match(cmd, "ip link"), "ip link",
+    match(cmd, "ip route"), "ip route",
+    match(cmd, "\bss\b"), "ss",
+    match(cmd, "netstat"), "netstat",
+    match(cmd, "\barp\b"), "arp",
+    match(cmd, "\bdig\b"), "dig",
+    match(cmd, "nslookup"), "nslookup",
+    match(cmd, "curl"), "curl",
+    match(cmd, "wget"), "wget",
+
+    match(cmd, "cat /etc/passwd"), "passwd",
+    match(cmd, "cat /etc/shadow"), "shadow",
+    match(cmd, "getent passwd"), "getent passwd",
+    match(cmd, "groups"), "groups",
+    match(cmd, "lastlog"), "lastlog",
+
+    match(cmd, "ps aux"), "ps aux",
+    match(cmd, "top"), "top",
+    match(cmd, "journalctl"), "journalctl",
+
+    match(cmd, "ls -la"), "ls -la",
+    match(cmd, "find /"), "find",
+    match(cmd, "stat "), "stat",
+    match(cmd, "df -h"), "df -h",
+    match(cmd, "du -sh"), "du -sh",
+    match(cmd, "mount"), "mount",
+
+    match(cmd, "crontab -l"), "crontab",
+
+    match(cmd, "getcap"), "getcap"
+)
+| search suspicious_command!=""
+| bin _time span=1m
+| stats dc(suspicious_command) as uniq values(suspicious_command) as commandes by host, _time
+| where uniq >= 3

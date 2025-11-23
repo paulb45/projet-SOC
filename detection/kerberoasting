@@ -1,0 +1,5 @@
+index="test" sourcetype="WinEventLog:Security" EventCode=4769 Ticket_Encryption_Type=0x17
+| where NOT match(TargetUserName, "\$$")
+| bin _time span=1h
+| stats count by _time, TargetUserName, IpAddress
+| where count > 5

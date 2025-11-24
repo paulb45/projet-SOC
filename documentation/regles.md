@@ -12,7 +12,9 @@ Détection des attaques de type kerberoasting sur l'évènement 4769 de l'AD. Si
 ### Création d’une tâche planifiée suspecte
 ### Création d’un service suspect
 ### Création ou modification de clé RUN
+Alerte de niveu Médium. Détecte la création ou la modification de clé RUN, en omettant les cas qui semblent légitimes ou trop courant.
 ### Dump LSASS
+Alerte de niveau High. Détecte une tentative de dump LSASS, notamment avec des outils comme mimikatz ou impacket, répandus chez les attaquants.
 
 ## Linux
 ### Multiples commandes d’énumération

@@ -46,5 +46,11 @@ index="test" sourcetype="kunai_json"
 )
 | search suspicious_command!=""
 | bin _time span=1m
-| stats dc(suspicious_command) as uniq values(suspicious_command) as commandes by host, _time
-| where uniq >= 5
+| eval alert_source_event_time = strftime(_time, "%Y-%m-%d %H:%M:%S")
+| stats dc(suspicious_command) as uniq values(suspicious_command) as commandes by host alert_source_event_time sourcetype
+| where uniq >= 3
+| eval alert_title="Commande d'énumération Linux"
+| eval alert_description="Commande d'énumération Linux"
+| rename sourcetype as alert_source
+| eval alert_severity_id=2
+| rename commandes as alert_source_content

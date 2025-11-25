@@ -1,0 +1,10 @@
+index="prod" EventCode=4768
+| eval PreAuthType = coalesce('Type de pré-authentification','Pre-Authentication_Type',"0")
+| where PreAuthType="0"
+| eval alert_source_event_time = strftime(_time, "%Y-%m-%d %H:%M:%S")
+| table host alert_source_event_time sourcetype Message
+| eval alert_title="ASREP-Roasting"
+| eval alert_description="ASREP-Roasting"
+| rename sourcetype as alert_source
+| eval alert_severity_id=3
+| rename Message as alert_source_content

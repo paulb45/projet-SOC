@@ -1,0 +1,12 @@
+index=prod
+| where process_name IN ("procdump.exe", "procdump64.exe", "mimikatz.exe")
+    OR CommandLine LIKE "%lsass%" 
+    OR CommandLine LIKE "%procdump -ma%"
+    OR CommandLine LIKE "%sekurlsa%"
+| eval alert_source_event_time = strftime(_time, "%Y-%m-%d %H:%M:%S")
+| table host alert_source_event_time sourcetype Message
+| eval alert_title="Kerberoasting"
+| eval alert_description="Dump LSASS"
+| rename sourcetype as alert_source
+| eval alert_severity_id=3
+| rename Message as alert_source_content

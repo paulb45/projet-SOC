@@ -1,5 +1,10 @@
-index="test" sourcetype="WinEventLog:Security" EventCode=4769 Ticket_Encryption_Type=0x17
-| where NOT match(TargetUserName, "\$$")
-| bin _time span=1h
-| stats count by _time, TargetUserName, IpAddress
-| where count > 5
+index="test" EventCode=4769 
+Nom_du_service!=krbtgt
+| where NOT like(Nom_du_compte, "%$%")
+| eval alert_source_event_time = strftime(_time, "%Y-%m-%d %H:%M:%S")
+| table host alert_source_event_time sourcetype Message
+| eval alert_title="Kerberoasting"
+| eval alert_description="Alerte kerberoasting"
+| rename sourcetype as alert_source
+| eval alert_severity_id=3
+| rename Message as alert_source_content

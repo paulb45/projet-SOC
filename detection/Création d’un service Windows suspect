@@ -1,0 +1,43 @@
+index="prod"
+(
+    (source="WinEventLog:Security" EventCode=4697)
+    OR
+    (source="WinEventLog:Microsoft-Windows-Sysmon/Operational"
+        EventCode=1
+        AND Image="*\\sc.exe"
+    )
+)
+| eval suspicious_binpath = case(
+        source="WinEventLog:Security"
+        AND (
+               like(Nom_de_fichier_du_service, "%\\Temp\\%")
+            OR like(Nom_de_fichier_du_service, "%\\AppData\\%")
+            OR like(Nom_de_fichier_du_service, "%\\Users\\Public%")
+        ), 1,
+
+        source="WinEventLog:Microsoft-Windows-Sysmon/Operational"
+        AND (
+               like(CommandLine, "%powershell%")
+            OR like(CommandLine, "%mshta%")
+            OR like(CommandLine, "%wscript%")
+            OR like(CommandLine, "%cscript%")
+            OR like(CommandLine, "%rundll32%")
+            OR like(CommandLine, "%cmd.exe /c%")
+            OR like(CommandLine, "%cmd.exe /k%")
+            OR like(CommandLine, "%C:\\Users\\Public%")
+            OR like(CommandLine, "%\\Downloads\\%")
+            OR like(CommandLine, "%\\Desktop\\%")
+            OR like(CommandLine, "%C:\\Windows\\Temp\\%")
+            OR like(CommandLine, "%\\AppData\\Local\\Temp%")
+        ), 1,
+
+        true(), 0
+)
+| where suspicious_binpath=1
+| eval ServiceName = coalesce(Nom_du_service, ServiceName)
+| rex field=CommandLine "create\s+(?<ServiceName>[^\s]+)"
+| eval BinPath = coalesce(Nom_de_fichier_du_service, BinPath)
+| rex field=CommandLine "binPath=\s+\"(?<BinPath>[^\"]+)\""
+| eval Account = coalesce(Nom_du_compte, User)
+| table _time host source EventCode ServiceName BinPath CommandLine Account
+| sort - _time

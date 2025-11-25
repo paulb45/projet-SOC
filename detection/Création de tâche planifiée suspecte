@@ -1,0 +1,26 @@
+index=prod
+(
+   (source="WinEventLog:Security" EventCode=4698)
+   OR
+   (
+     source="WinEventLog:Microsoft-Windows-Sysmon/Operational"
+     EventCode=1
+     AND (Image="*\\schtasks.exe" OR Image="*\\at.exe")
+   )
+)
+| eval suspicious_cmd = if(
+        like(CommandLine, "%powershell%")
+     OR like(CommandLine, "%cmd.exe%")
+     OR like(CommandLine, "%wscript%")
+     OR like(CommandLine, "%cscript%")
+     OR like(CommandLine, "%rundll32%")
+     OR like(CommandLine, "%mshta%")
+,1,0)
+| eval suspicious_path = if(
+        like(TaskName,"%AppData%")
+     OR like(TaskName,"%Temp%")
+     OR like(TaskName,"%Updater%")
+,1,0)
+| where suspicious_cmd=1 OR suspicious_path=1
+| table _time host User Image data.command_line TaskName EventCode
+| sort -_time

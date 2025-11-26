@@ -1,0 +1,9 @@
+index="test" source="WinEventLog:Security" EventCode=4688 host="DC.test.local"
+Nom_du_nouveau_processus="*procdump.exe*"
+| eval alert_source_event_time = strftime(_time, "%Y-%m-%d %H:%M:%S")
+| table alert_source_event_time host Nom_du_nouveau_processus Nom_du_compte Nom_du_processus ID_du_nouveau_processus Message sourcetype
+| eval alert_title="Procdump"
+| eval alert_description="Exécution de procdump sur DC"
+| rename sourcetype as alert_source
+| eval alert_severity_id=3
+| rename Message as alert_source_content

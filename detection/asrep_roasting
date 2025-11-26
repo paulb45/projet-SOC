@@ -1,5 +1,5 @@
 index="prod" EventCode=4768
-| eval PreAuthType = coalesce('Type de pré-authentification','Pre-Authentication_Type',"0")
+| eval PreAuthType = coalesce('Type de pré-authentification','Pre_Authentication_Type',"0")
 | where PreAuthType="0"
 | eval alert_source_event_time = strftime(_time, "%Y-%m-%d %H:%M:%S")
 | table host alert_source_event_time sourcetype Message

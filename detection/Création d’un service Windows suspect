@@ -39,5 +39,11 @@ index="prod"
 | eval BinPath = coalesce(Nom_de_fichier_du_service, BinPath)
 | rex field=CommandLine "binPath=\s+\"(?<BinPath>[^\"]+)\""
 | eval Account = coalesce(Nom_du_compte, User)
-| table _time host source EventCode ServiceName BinPath CommandLine Account
-| sort - _time
+| eval Message = coalesce(CommandLine, BinPath, ServiceName)
+| eval alert_title="Création de service suspecte"
+| eval alert_description="Création de service Windows potentiellement malveillante"
+| eval alert_source_event_time = strftime(_time, "%Y-%m-%d %H:%M:%S")
+| rename sourcetype AS alert_source
+| eval alert_severity_id=3
+| rename Message AS alert_source_content
+| table host alert_title alert_description alert_source alert_source_event_time alert_severity_id alert_source_content

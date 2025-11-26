@@ -1,0 +1,30 @@
+index="test" 
+(
+   (source="WinEventLog:Security" EventCode=4698)
+   OR
+   (
+     source="WinEventLog:Microsoft-Windows-Sysmon/Operational"
+     EventCode=1
+     AND (Image="*\\schtasks.exe" OR Image="*\\at.exe")
+   )
+)
+| eval suspicious_cmd = if(
+        like(CommandLine, "%powershell%")
+     OR like(CommandLine, "%cmd.exe%")
+     OR like(CommandLine, "%wscript%")
+     OR like(CommandLine, "%cscript%")
+     OR like(CommandLine, "%rundll32%")
+     OR like(CommandLine, "%mshta%"), 1, 0)
+| eval suspicious_path = if(
+        like(TaskName,"%AppData%")
+     OR like(TaskName,"%Temp%")
+     OR like(TaskName,"%Updater%"), 1, 0)
+| where suspicious_cmd=1 OR suspicious_path=1
+| eval Message = coalesce(data.command_line, CommandLine, Image, TaskName)
+| eval alert_title="Tâche planifiée suspecte"
+| eval alert_description="Création ou modification de tâche planifiée potentiellement malveillante"
+| eval alert_source_event_time = strftime(_time, "%Y-%m-%d %H:%M:%S")
+| rename sourcetype AS alert_source
+| rename Message AS alert_source_content
+| eval alert_severity_id=3
+| table host alert_title alert_description alert_source alert_source_event_time alert_severity_id alert_source_content

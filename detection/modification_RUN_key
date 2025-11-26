@@ -17,8 +17,8 @@ index=prod
         NOT newval="*GoogleUpdate*"
 | eval alert_source_event_time = strftime(_time, "%Y-%m-%d %H:%M:%S")
 | table host alert_source_event_time sourcetype Message
-| eval alert_title="Kerberoasting"
-| eval alert_description="Alerte kerberoasting"
+| eval alert_title="RUN key"
+| eval alert_description="Modif RUN key"
 | rename sourcetype as alert_source
 | eval alert_severity_id=3
 | rename Message as alert_source_content
